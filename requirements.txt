@@ -1,0 +1,12 @@
+# pyautogui
+pygetwindow
+keyboard
+mouse
+mss
+
+Pillow
+numpy
+psutil
+
+# GUI
+customtkinter
