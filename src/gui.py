@@ -12,6 +12,10 @@ customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dar
 customtkinter.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
 customtkinter.set_widget_scaling(2)
 
+ICON_PATH = 'assets/icon.ico'
+if not os.path.exists(ICON_PATH):
+    ICON_PATH = os.path.join('app', ICON_PATH)
+
 
 class Button(customtkinter.CTkButton):
 
@@ -41,13 +45,15 @@ class App(customtkinter.CTk):
         super().__init__()
         self.title("PawClick")
         self.minsize(600, 800)
-        self.iconbitmap('icon.ico')
+        if os.path.exists(ICON_PATH):
+            self.iconbitmap(ICON_PATH)
 
         self.font = customtkinter.CTkFont(size=16, family='Noto Sans CJK TC')
         self.create_widgets()
 
     def create_widgets(self):
-        icon = customtkinter.CTkImage(light_image=Image.open("icon.ico"), size=(60, 60))
+        image = Image.open(ICON_PATH) if os.path.exists(ICON_PATH) else Image.new('RGBA', (10, 10), (255, 0, 0, 0))
+        icon = customtkinter.CTkImage(light_image=image, size=(60, 60))
         label = customtkinter.CTkLabel(self, image=icon, text='')
         label.pack(side='top', pady=10)
 
@@ -108,9 +114,11 @@ class App(customtkinter.CTk):
         self.btn_stop.configure(state='disabled')
 
     def find_scripts(self):
-        scripts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'scripts')
-        scripts = [f[:-3] for f in os.listdir(scripts_dir) if f.endswith('.py') and f != '__init__.py']
-        return scripts
+        scripts_dir = os.path.join(os.getcwd(), 'scripts')
+        if os.path.exists(scripts_dir):
+            scripts = [f[:-3] for f in os.listdir(scripts_dir) if f.endswith('.py') and f != '__init__.py']
+            return scripts
+        return []
 
     def on_script_state_change(self, paused, stopped):
         self.btn_load.configure(state='normal' if stopped else 'disabled')
