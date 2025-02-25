@@ -1,7 +1,9 @@
 import os
+import ctypes
 import importlib
 import logging
 
+import keyboard
 import customtkinter
 from PIL import Image
 from .runner import ScriptRunner
@@ -15,6 +17,14 @@ customtkinter.set_widget_scaling(2)
 ICON_PATH = 'assets/icon.ico'
 if not os.path.exists(ICON_PATH):
     ICON_PATH = os.path.join('app', ICON_PATH)
+
+
+def disable_ime(root):
+    try:
+        hwnd = root.winfo_id()
+        ctypes.windll.imm32.ImmAssociateContext(hwnd, None)
+    except Exception as e:
+        print(f"Error disabling IME: {e}")
 
 
 class Button(customtkinter.CTkButton):
@@ -36,13 +46,79 @@ class Button(customtkinter.CTkButton):
         super().configure(require_redraw, **kwargs)
 
 
+class CustomHotkeyDialog(customtkinter.CTkToplevel):
+
+    def __init__(self):
+        super().__init__()
+        disable_ime(self)
+
+        self.title("Custom Hotkey")
+        self.geometry("450x250")
+        self.result = None
+        self.current_key = None
+
+        # Make dialog modal
+        self.transient(self.master)
+        self.grab_set()
+
+        # Current key label
+        self.key_label = customtkinter.CTkLabel(self, text="Press any key...", font=("Helvetica", 14))
+        self.key_label.pack(pady=10)
+
+        # Button frame
+        button_frame = customtkinter.CTkFrame(self, fg_color='transparent')
+        button_frame.pack(pady=20)
+
+        # OK button
+        self.ok_button = customtkinter.CTkButton(button_frame, text="OK", width=80, command=self.on_ok)
+        self.ok_button.pack(side='left', padx=10)
+        self.ok_button.configure(state='disabled')
+
+        # Cancel button
+        self.cancel_button = customtkinter.CTkButton(button_frame, text="Cancel", width=80, command=self.on_cancel)
+        self.cancel_button.pack(side='left', padx=10)
+
+        keyboard.hook(self.on_key_press)
+
+        # Center the dialog
+        self.update_idletasks()
+        width = self.winfo_width()
+        height = self.winfo_height()
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f'{width}x{height}+{x}+{y}')
+
+    def on_key_press(self, event):
+        self.current_key = event.name
+        self.key_label.configure(text=f"{self.current_key}")
+        self.ok_button.configure(state='normal')
+
+    def on_ok(self):
+        self.result = self.current_key
+        self.destroy()
+
+    def on_cancel(self):
+        self.result = None
+        self.destroy()
+
+    def destroy(self):
+        keyboard.unhook_all()
+        super().destroy()
+
+
 class App(customtkinter.CTk):
 
     def __init__(self):
         self.runner = None
         self.hotkeys = {'start': 'F1', 'pause': 'F2', 'stop': 'Esc'}
+        self.hotkey_options = {
+            'function_keys': ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'],
+            'mouse': ['mouse.left', 'mouse.right', 'mouse.middle'],
+        }
 
         super().__init__()
+        disable_ime(self)
+
         self.title("PawClick")
         self.minsize(600, 800)
         if os.path.exists(ICON_PATH):
@@ -50,6 +126,32 @@ class App(customtkinter.CTk):
 
         self.font = customtkinter.CTkFont(size=16, family='Noto Sans CJK TC')
         self.create_widgets()
+
+    def create_hotkey_menu(self, parent, default_value):
+        options = []
+        for key_group in self.hotkey_options.values():
+            if isinstance(key_group, list):
+                options.extend(key_group)
+        options.append('Custom...')
+
+        latest_hotkey = default_value
+
+        def on_hotkey_select(choice):
+            nonlocal latest_hotkey
+            if choice == 'Custom...':
+                dialog = CustomHotkeyDialog()
+                self.wait_window(dialog)
+                if dialog.result:
+                    latest_hotkey = dialog.result
+                    menu.set(dialog.result)
+                else:
+                    menu.set(latest_hotkey)
+            else:
+                latest_hotkey = choice
+
+        menu = customtkinter.CTkOptionMenu(parent, width=100, font=self.font, values=options, command=on_hotkey_select)
+        menu.set(default_value)
+        return menu
 
     def create_widgets(self):
         image = Image.open(ICON_PATH) if os.path.exists(ICON_PATH) else Image.new('RGBA', (10, 10), (255, 0, 0, 0))
@@ -79,11 +181,11 @@ class App(customtkinter.CTk):
         for hotkey in ['start', 'pause', 'stop']:
             label = customtkinter.CTkLabel(hotkey_frame, font=self.font, text=f"{hotkey.capitalize()}:")
             label.grid(row=row, column=0, padx=10, ipady=10)
-            entry = customtkinter.CTkEntry(hotkey_frame, font=self.font, width=50, height=28)
-            entry.grid(row=row, column=1)
-            entry.insert(0, self.hotkeys[hotkey])
-            row = row + 1
-            self.entry_hotkeys[hotkey] = entry
+
+            menu = self.create_hotkey_menu(hotkey_frame, self.hotkeys[hotkey])
+            menu.grid(row=row, column=1)
+            self.entry_hotkeys[hotkey] = menu
+            row += 1
 
         label = customtkinter.CTkLabel(hotkey_frame, font=self.font, text="Loop:")
         label.grid(row=row, column=0, padx=10, ipady=10)
@@ -94,8 +196,6 @@ class App(customtkinter.CTk):
             height=28,
             checkbox_height=22,
             checkbox_width=22,
-            border_color=entry._border_color,
-            border_width=entry._border_width,
         )
         self.checkbox_loop.grid(row=row, column=1)
         self.entry_hotkeys['loop'] = self.checkbox_loop

@@ -35,8 +35,8 @@ class ScriptRunner:
         mouse.hook(_callback)
 
     def hook_hotkey(self, key, callback):
-        if key in ['left', 'right', 'middle']:
-            self.mouse_hook(key, callback)
+        if key.startswith('mouse.'):
+            self.mouse_hook(key.replace('mouse.', ''), callback)
         else:
             keyboard.add_hotkey(key, callback)
 
