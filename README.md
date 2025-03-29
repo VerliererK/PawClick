@@ -69,3 +69,15 @@ pip install .[app]
 ```bash
 python app/app.py
 ```
+
+### Build an executable
+
+1. Install Nuitka:
+```bash
+pip install nuitka
+```
+
+2. Build the application:
+```bash
+python -m nuitka --standalone --onefile --onefile-tempdir-spec="{CACHE_DIR}/PawClick" --lto=yes --follow-imports --windows-uac-admin --windows-icon-from-ico=app/assets/icon.ico --windows-console-mode=disable --enable-plugin=tk-inter --include-package=pawclick --include-data-files=app/assets/icon.ico=assets/icon.ico app/app.py
+```
