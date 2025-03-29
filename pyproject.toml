@@ -27,3 +27,6 @@ name = "VerliererK"
 
 [project.optional-dependencies]
 app = ["customtkinter"]
+
+[project.scripts]
+pawclick = "pawclick.gui.app:main"

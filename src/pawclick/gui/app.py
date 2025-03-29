@@ -7,7 +7,7 @@ import logging
 import keyboard
 import customtkinter
 from PIL import Image
-from runner import ScriptRunner
+from .runner import ScriptRunner
 
 logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=logging.INFO)
 
@@ -22,14 +22,14 @@ sys.path.append(SCRIPTS_DIR)
 
 def get_icon_path():
     possible_paths = [
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'icon.ico'),
+        os.path.join('assets', 'icon.ico'),
         os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'assets', 'icon.ico'),
     ]
 
     for path in possible_paths:
         if os.path.exists(path):
             return path
-    return None
+    return ''
 
 
 ICON_PATH = get_icon_path()
@@ -280,6 +280,10 @@ class App(customtkinter.CTk):
         self.mainloop()
 
 
-if __name__ == "__main__":
+def main():
     app = App()
     app.run()
+
+
+if __name__ == "__main__":
+    main()
