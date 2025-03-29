@@ -6,6 +6,12 @@ from PIL import Image
 from mss import mss
 
 
+def pixel(x, y) -> tuple:
+    with mss() as sct:
+        im = sct.grab({'top': y, 'left': x, 'width': 1, 'height': 1})
+        return im.pixel(0, 0)
+
+
 def screenshot(region=None) -> np.ndarray:
     """
     Capture screen using mss library
