@@ -52,3 +52,20 @@ positions = find_img_inwindow(template)
 - mss
 - Pillow
 - numpy
+
+## GUI Application
+
+- Build with CustomTkinter
+- Script selection and management
+- Configurable hotkeys for start/pause/stop
+
+### Installation
+
+```bash
+pip install .[app]
+```
+### Run the App
+
+```bash
+python app/app.py
+```

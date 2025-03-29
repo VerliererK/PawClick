@@ -24,3 +24,6 @@ classifiers = [
 
 [[project.authors]]
 name = "VerliererK"
+
+[project.optional-dependencies]
+app = ["customtkinter"]
