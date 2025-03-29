@@ -19,9 +19,20 @@ SCRIPTS_DIR = os.path.join(os.getcwd(), 'scripts')
 os.makedirs(os.path.abspath(SCRIPTS_DIR), exist_ok=True)
 sys.path.append(SCRIPTS_DIR)
 
-ICON_PATH = 'assets/icon.ico'
-if not os.path.exists(ICON_PATH):
-    ICON_PATH = os.path.join('app', ICON_PATH)
+
+def get_icon_path():
+    possible_paths = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'icon.ico'),
+        os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'assets', 'icon.ico'),
+    ]
+
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+    return None
+
+
+ICON_PATH = get_icon_path()
 
 
 def disable_ime(root):
