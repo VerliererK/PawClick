@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pawclick"
+version = "0.1.0"
+dependencies = [
+    "pygetwindow",
+    "keyboard",
+    "mouse",
+    "mss",
+    "Pillow",
+    "numpy",
+]
+requires-python = ">=3.6"
+description = "..."
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+]
+
+[[project.authors]]
+name = "VerliererK"
