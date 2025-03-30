@@ -79,5 +79,5 @@ pip install nuitka
 
 2. Build the application:
 ```bash
-python -m nuitka --standalone --onefile --onefile-tempdir-spec="{CACHE_DIR}/PawClick" --lto=yes --follow-imports --windows-uac-admin --windows-icon-from-ico=app/assets/icon.ico --windows-console-mode=disable --enable-plugin=tk-inter --include-package=pawclick --include-data-files=app/assets/icon.ico=assets/icon.ico app.py
+python -m nuitka --standalone --onefile --onefile-tempdir-spec="{CACHE_DIR}/PawClick" --lto=yes --follow-imports --windows-uac-admin --windows-icon-from-ico=src/pawclick/assets/icon.ico --windows-console-mode=disable --enable-plugin=tk-inter --include-package=pawclick --include-data-files=src/pawclick/assets/icon.ico=assets/icon.ico app.py
 ```

@@ -30,3 +30,6 @@ app = ["customtkinter"]
 
 [project.scripts]
 pawclick = "pawclick.gui.app:main"
+
+[tool.setuptools.package-data]
+pawclick = ["assets/*.ico"]

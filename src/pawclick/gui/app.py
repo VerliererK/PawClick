@@ -1,8 +1,9 @@
 import os
 import sys
 import ctypes
-import importlib
 import logging
+import importlib
+from importlib import resources
 
 import keyboard
 import customtkinter
@@ -21,14 +22,16 @@ sys.path.append(SCRIPTS_DIR)
 
 
 def get_icon_path():
-    possible_paths = [
-        os.path.join('assets', 'icon.ico'),
-        os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'assets', 'icon.ico'),
-    ]
-
-    for path in possible_paths:
-        if os.path.exists(path):
-            return path
+    try:
+        with resources.path('pawclick.assets', 'icon.ico') as icon_path:
+            return str(icon_path)
+    except Exception as e:
+        icon_path = os.path.join(os.path.dirname(sys.executable), 'assets', 'icon.ico')
+        if os.path.exists(icon_path):
+            return icon_path
+        icon_path = os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'assets', 'icon.ico')
+        if os.path.exists(icon_path):
+            return icon_path
     return ''
 
 
