@@ -37,6 +37,7 @@ def find_img(large_image: np.ndarray, small_image: np.ndarray, threshold=0, find
     Args:
         large_image (numpy array): Large image to search in
         small_image (numpy array): Template image to find
+        threshold (int, optional): Threshold for image matching
         find_all (bool, optional): Whether to return all matches or just the first one
     Returns:
         list: List of coordinates where template is found
@@ -68,16 +69,38 @@ def find_img(large_image: np.ndarray, small_image: np.ndarray, threshold=0, find
     return locations
 
 
-def find_img_inwindow(image: np.ndarray, threshold=0, find_all: bool = False) -> list:
-    region = None
-    active_window = gw.getActiveWindow()
-    if active_window:
-        region = (active_window.left, active_window.top, active_window.width, active_window.height)
+def find_img_on_screen(image: np.ndarray, region: tuple = None, threshold=0, find_all: bool = False) -> list:
+    """
+    Find image on screen
+    Args:
+        image (numpy array): Template image to find
+        region (tuple, optional): Search region (x, y, width, height)
+        threshold (int, optional): Threshold for image matching
+        find_all (bool, optional): Whether to return all matches or just the first one
+    Returns:
+        list: List of coordinates where template is found
+    """
     pos = find_img(screenshot(region), image, threshold=threshold, find_all=find_all)
-    for p in pos:
-        p[0] += region[0] if region else 0
-        p[1] += region[1] if region else 0
+    if region:
+        for p in pos:
+            p[0] += region[0]
+            p[1] += region[1]
     return pos
+
+
+def find_img_on_window(image: np.ndarray, threshold=0, find_all: bool = False) -> list:
+    """
+    Find image on active window
+    Args:
+        image (numpy array): Template image to find
+        threshold (int, optional): Threshold for image matching
+        find_all (bool, optional): Whether to return all matches or just the first one
+    Returns:
+        list: List of coordinates where template is found
+    """
+    active_window = gw.getActiveWindow()
+    region = (active_window.left, active_window.top, active_window.width, active_window.height) if active_window else None
+    return find_img_on_screen(image, region=region, threshold=threshold, find_all=find_all)
 
 
 def keypress(key: str):
