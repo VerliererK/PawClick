@@ -12,7 +12,7 @@ def pixel(x, y) -> tuple:
         return im.pixel(0, 0)
 
 
-def screenshot(region=None) -> np.ndarray:
+def screenshot(region=None, with_cursor=False) -> np.ndarray:
     """
     Capture screen using mss library
     Args:
@@ -20,7 +20,7 @@ def screenshot(region=None) -> np.ndarray:
     Returns:
         numpy array: Screenshot image in RGB format
     """
-    with mss() as sct:
+    with mss(with_cursor=with_cursor) as sct:
         monitor = sct.monitors[1] if region is None else {'top': region[1], 'left': region[0], 'width': region[2], 'height': region[3]}
         im = sct.grab(monitor)
     img = np.asarray(im, dtype=np.uint8)
